@@ -1,10 +1,10 @@
-# T: O(n)
-# S:O(n)
+# T: O(n^2)
+# S:O(n^2)
 # Leetcode:Yes
-# Issues: Tabulation issue
+# Issues: None
 
 
-# memoisation dp
+# memoisation dp recursion
 class Solution:
     def minimumTotal(self, triangle: List[List[int]]) -> int:
         n = len(triangle)
@@ -27,21 +27,48 @@ class Solution:
         return min(left,right) + triangle[r][c]
 
 
-# tabulation not working issue
+# bottom up dp inplace Space: O(1)
+    def minimumTotal(self, triangle: List[List[int]]) -> int:
+        n = len(triangle)
+
+        for i in range(1,n):
+            for j in range(i+1):
+                if j == 0:
+                    triangle[i][j] += triangle[i-1][0]
+                elif j == i:
+                    triangle[i][j] += triangle[i-1][j-1]
+                else:
+                    triangle[i][j] += min(triangle[i-1][j-1],triangle[i-1][j])
+
+
+        return min(triangle[-1])
+
+# bottom up with path
 class Solution:
     def minimumTotal(self, triangle: List[List[int]]) -> int:
         n = len(triangle)
-        dp = [0] * n
-        for i in range(1,n):
-            for j in range(i):
-                if j == 0:
-                    dp[i][j] = dp[i][j]+dp[i-1][0]
-                elif j == i:
-                   dp[i][j]  = dp[i][j]+dp[i-1][j-1]
+
+        dp = [[0]*n for _ in range(n)]
+        path = [[0]*n for _ in range(n)]
+
+        for j in range(n):
+            dp[n-1][j] = triangle[n-1][j]
+
+        # path         
+        # [0,-,-,-]
+        # [1,1,-,-]        
+        # [1,1,4,-]
+        # [0,0,0,0]
+        
+        for i in range(n-2,-1,-1):
+            for j in range(i+1):
+                if dp[i+1][j] < dp[i+1][j+1]:              
+                    path[i][j] = j
                 else:
-                    dp[i][j]  = dp[i][j] + min(dp[i-1][j],dp[i-1][j-1])
+                    path[i][j]  = j+1
+                dp[i][j] = triangle[i][j] + min(dp[i+1][j], dp[i+1][j+1])
 
+        return dp[0][0]
 
-        res = min(dp[-1])
-        return res
+        
          
